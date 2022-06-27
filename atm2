@@ -1,0 +1,609 @@
+#include "stdio.h"
+#include "string.h"
+#include "conio.h"
+#include "stdlib.h"
+
+#define MAXCOUNT 6
+
+struct Account{
+    int zh;
+    char name[20];
+    int password;
+    double money;
+    int status;
+    struct Account * next;
+};
+Account user[6];
+
+int countorl = 1;        //控制结束的变量
+int order = 1;           //控制顺序的变量
+int confirmpassword[6];  //确认用的密码
+
+void ShowMeau_1();
+void ShowMeau_2();
+void Authoring(Account user[]);
+double Desposit(Account user[],int i);
+double Draw(Account user[],int i);
+void Transfer(Account user[],int i);
+void Show_accounts(Account user[]);
+void Show_The_user(Account user[],int i);
+void Incomplete();
+void Report(Account user[]);
+void Thaw(Account user[],int i);
+void Cancel(Account user[],int i);
+int ATMsystem(Account user[],int i);
+void Enroll(Account user[]);
+void Change_Pass(Account user[],int i);
+void BaoCunToFile(Account user[], int n, char sFileName[]);
+void DuQuFromFile(Account user[], int n, char sFileName[]);
+
+//主界面
+int main()
+{
+    int a;
+
+    memset(user,0,sizeof(user));
+
+    DuQuFromFile(user, MAXCOUNT, "D:\\atm.txt");
+
+    while(1)
+    {
+        system("cls");
+        ShowMeau_1();
+
+        printf("	请选择相应菜单项：\n");
+        printf("Please select the corresponding menu item：");
+        scanf("%d",&a);
+
+        switch(a)
+        {
+        case 1:Authoring(user);
+            break;
+
+        case 2:Enroll(user);
+            break;
+
+        case 3:Report(user);
+            break;
+
+        case 4:system("cls");
+			printf("谢谢使用，再见！\n");
+			printf("Thanks for using. Bye！\n");
+            BaoCunToFile(user, MAXCOUNT, "D:\\atm.txt");
+            return 0;
+
+        case 5:Show_accounts(user);
+            break;
+        }
+    }
+    BaoCunToFile(user, MAXCOUNT, "D:\\atm.txt");
+}
+
+//登录
+void Enroll(Account user[])
+{
+    system("cls");
+    Account user2;
+    int i = 0;
+    char mm[10];
+    int pass;
+
+    printf("请输入你的账号：\n");
+	printf("Please enter your account number：");
+    scanf("%d",&user2.zh);
+
+    printf("请输入密码：\n");
+	printf("Please input a password：");
+    while((mm[i] = getch()) != '\r')
+    {
+        if(mm[i] == '\b')
+        {
+            printf("\b \b");
+            i--;
+        }
+        else
+        {
+            printf("*");
+            i++;
+        }
+    }
+
+    mm[i] = '\0';
+    pass = atoi(mm);;
+
+    printf("\n");
+
+    for(i = 1;i <= 6;i++)
+    {
+        if(user2.zh == user[i].zh)
+        {
+            if(pass == user[i].password)
+            {
+                ATMsystem(user,i);
+                break;
+            }
+            else
+            {
+                printf("账号或密码错误！\n");
+				printf("Wrong account or password！\n\n");
+                char ch = getchar();
+                ch = getchar();
+            }
+        }
+    }
+   
+}
+
+//用户界面
+int ATMsystem(Account user[],int i)
+{
+    int a;
+    while(1)
+    {
+        system("cls");
+        ShowMeau_2();
+
+        printf("请选择相应菜单项：\n");
+		printf("Please select the corresponding menu item：");
+        scanf("%d",&a);
+        printf("\n\n");
+
+        switch(a)
+        {
+        case 1:
+            Desposit(user,i);
+            break;
+               
+        case 2:
+            Draw(user,i);
+            break;
+               
+        case 3:
+            Show_The_user(user,i);
+            break;
+               
+        case 4:
+            Transfer(user,i);
+            break;
+               
+        case 5:
+            Thaw(user,i);
+            break;
+               
+        case 6:
+            Cancel(user,i);
+            return 0;
+               
+        case 7:
+            Change_Pass(user,i);
+            break;
+
+        case 8:{
+            printf("正在退出……\n");
+			printf("Exiting……\n");
+            char ch = getchar();
+			ch = getchar();
+            return a;
+               }
+        }
+    }
+   
+}
+
+//菜单1
+void ShowMeau_1()
+{
+    printf("\t欢迎使用银行管理系统ATM\n");
+	printf("Welcome to the bank management system ATM\n");
+    printf("*******************************************\n");
+    printf("*请选择你的操作：\n");
+	printf("*Please select your action：\n\n");
+    printf("*1.开户\t            2.登录     3.挂失\t          4.退出系统\n");
+	printf("*1.Account opening  2.Sign in  3.report the loss  4.Exit the system\n\n");
+    printf("*5.显示目前账户数组信息\n");
+	printf("*5.Display current account array information\n");
+    printf("*******************************************\n");
+}
+
+//菜单2
+void ShowMeau_2()
+{
+    system("cls");
+    printf("\t\t主界面\n");
+	printf("\t\tmain interface\n");
+    printf("***********************************************\n");
+    printf("*请选择你的操作：\n");
+	printf("*Please select your action：\n\n");
+    printf("*1.存款\t   2.取款\t    3.查询  4.转账\n");
+	printf("*1.deposit 2.withdraw money 3.query 4.transfer accounts\n\n");
+    printf("*5.解挂       6.销户	  	\t7.改密     \t    8.退回主界面\n");
+	printf("*5.Uncoupling 6.Cancellation of account 7.Encryption change 8.Return to main interface\n");
+    printf("************************************************\n");
+}
+
+//开户
+void Authoring(Account user[])
+{
+    system("cls");
+    char ch;
+
+    if(user[order].zh!=0)
+    {
+        order++;
+    }
+
+    for(;user[order].zh == 0 && order < 7;)
+    {
+        user[order].zh = 10000 + order;
+        printf("现在开始创造账户……\n");
+		printf("Start creating accounts now……\n\n");
+        printf("请输入用户姓名：\n");
+		printf("Please enter the user name：");
+        scanf("%s",&user[order].name);
+        printf("请输入六位数密码：\n");
+		printf("Please enter a six digit password：");
+        scanf("%d",&user[order].password);
+
+        if(user[order].password >= 100000 && user[order].password <= 999999)
+        {
+            printf("请再次输入密码确认：\n");
+			printf("Please enter the password again to confirm：");
+            scanf("%d",&confirmpassword[order]);
+
+            if(user[order].password == confirmpassword[order])
+            {
+                printf("开户成功！\n");
+				printf("Account opened successfully！\n");
+                printf("您的账号是：%d\n",user[order].zh);
+				printf("Your account number is：%d",user[order].zh);
+                order++;
+                ch = getchar();
+                ch = getchar();
+                break;
+            }
+            else
+            {
+                printf("密码不一致，开户失败\n");
+				printf("Password is inconsistent, account opening failed\n");
+                user[order].password = 0;
+                confirmpassword[order]= 0;
+                ch = getchar();
+                ch = getchar();
+                break;
+            }
+        }
+        else
+        {
+            printf("对不起，密码不足六位，无法开户！\n");
+			printf("Sorry, the password is less than six digits, so you can't open an account！\n");
+            user[order].zh = 0;
+            memset(user[order].name,0,sizeof(user[order].name));
+            user[order].password = 0;
+            ch = getchar();
+            ch = getchar();
+            break;
+        }
+    }
+
+    if(order >= 7)
+    {
+        printf("\n对不起，该机器账号已满，无法注册！\n");
+		printf("\nSorry, the machine account is full, unable to register！\n");
+        ch = getchar();
+        ch = getchar();
+    }
+}
+
+//存款
+double Desposit(Account user[],int i)
+{
+    system("cls");
+    double desposit_money = 0;
+    printf("请输入存储的金额：\n");
+	printf("Please enter the stored amount：");
+    scanf("%lf",&desposit_money);
+
+    user[i].money += desposit_money;
+    printf("当前余额为：%.2lf\n",user[i].money);
+	printf("Current balance is：%.2lf\n\n",user[i].money);
+    char ch = getchar();
+    ch = getchar();
+    return user[i].money;
+}
+
+//取款
+double Draw(Account user[],int i)
+{
+    system("cls");
+    double draw_money = 0;
+    printf("请输入取出的金额：\n");
+	printf("Please enter the withdrawal amount：");
+    scanf("%lf",&draw_money);
+
+    if(draw_money < user[i].money)
+    {
+		user[i].money -= draw_money;
+        printf("当前余额为：%.2lf\n",user[i].money);
+		printf("Current balance is：%.2lf\n\n",user[i].money);
+        char ch = getchar();
+        ch = getchar();
+        return user[i].money;
+    }
+    else
+    {
+        printf("对不起，余额不足，无法取出\n");
+		printf("Sorry, the balance is insufficient and cannot be withdrawn\n\n");
+        char ch = getchar();
+        ch = getchar();
+        return -1;
+    }
+}
+
+//转账
+void Transfer(Account user[],int i)
+{
+    system("cls");
+    Account target;
+    printf("请输入要转账的对象的账号：\n");
+	printf("Please enter the account number of the object to be transferred：");
+    scanf("%d",&target.zh);
+
+    for(int j = 1;j <= 6;j++)
+    {
+        if(target.zh == user[j].zh)
+        {
+            double transfer_money = 0;
+            printf("请输入转账的金额：\n");
+			printf("Please enter the amount of transfer：");
+            scanf("%lf",&transfer_money);
+
+            if(transfer_money <= user[i].money)
+            {
+                user[j].money += transfer_money;
+                user[i].money -= transfer_money;
+                printf("当前余额为：%.2lf\n",user[i].money);
+				printf("Current balance is：%.2lf\n\n",user[i].money);
+                char ch = getchar();
+                ch = getchar();
+                break;
+            }
+            else
+            {
+                printf("对不起，余额不足！\n");
+				printf("Sorry, insufficient balance！\n\n");
+                printf("当前余额为：%.2lf\n\n",user[i].money);
+				printf("Current balance is：%.2lf\n\n",user[i].money);
+                char ch = getchar();
+                ch = getchar();
+                break;
+            }
+        }
+    }
+
+    if(target.zh != user[j].zh)
+    {
+        printf("对不起，查无此人！\n");
+		printf("Sorry, there is no such person！\n\n");
+        char ch = getchar();
+        ch = getchar();
+    }
+}
+
+//还未完成
+void Incomplete()
+{
+    system("cls");
+    printf("还未开发此功能\n敬请期待……\n\n");
+    char ch = getchar();
+    ch = getchar();
+}
+
+//显示目前账户数组信息
+void Show_accounts(Account user[])
+{
+    system("cls");
+    printf("账号数组内容如下：\n");
+	printf("The contents of the account array are as follows：\n");
+    for(int i = 1;i <= 6;i++)
+    {
+        printf("账户：%d\t",user[i].zh);
+        printf("用户名：%s\t",user[i].name);
+        printf("密码：%d\t",user[i].password);
+        printf("余额：%.2lf\t",user[i].money);
+        printf("状态：%d\n",user[i].status);
+    }
+
+    char ch = getchar();
+    ch = getchar();
+}
+
+//查询
+void Show_The_user(Account user[],int i)
+{
+    system("cls");
+
+    printf("账户：%d\n",user[i].zh);
+    printf("用户名：%s\n",user[i].name);
+    printf("密码：%d\n",user[i].password);
+    printf("余额：%.2lf\n",user[i].money);
+    printf("状态：%d\n",user[i].status);
+
+    char ch = getchar();
+    ch = getchar();
+}
+
+//挂失
+void Report(Account user[])
+{
+    system("cls");
+    Account a1;
+    char ch;
+    memset(a1.name,0,sizeof(a1.name));
+
+    printf("请输入要挂失的账号：\n");
+	printf("Please enter the account number to report the loss：");
+    scanf("%d",&a1.zh);
+
+    for(int i = 1;i <= 6;i++)
+    {
+        if(a1.zh == user[i].zh)
+        {
+            if(user[i].status == 0)
+            {
+                printf("户主：%s的账号挂失成功！\n",user[i].name);
+				printf("a householder：%sThe loss of your account has been reported successfully！\n",user[i].name);
+                user[i].status = -1;
+                ch = getchar();
+                ch = getchar();
+                break;
+            }
+            else
+            {
+                printf("对不起，该账号已挂失！\n");
+				printf("Sorry, this account has been reported as lost！\n");
+                ch = getchar();
+                ch = getchar();
+                break;
+            }
+        }
+    }
+
+    if(a1.zh != user[i].zh)
+    {
+        printf("对不起，查无此人！\n");
+		printf("Sorry, there is no such person！\n\n");
+        ch = getchar();
+    }
+}
+
+//解挂
+void Thaw(Account user[],int i)
+{
+    system("cls");
+    char ch;
+    if(user[i].status == -1)
+    {
+        printf("户主：%s的账号解挂成功！\n",user[i].name);
+
+        user[i].status = 0;
+        ch = getchar();
+        ch = getchar();
+    }
+}
+
+//销户
+void Cancel(Account user[],int i)
+{
+    system("cls");
+    char ch;
+
+    printf("\n正在销毁账号数据……\n");
+	printf("Destroying account data……\n\n");
+    ch = getchar();
+    ch = getchar();
+
+    user[i].money = 0;
+    memset(user[i].name,0,sizeof(user[i].name));
+    user[i].password = 0;
+    user[i].status = 0;
+    user[i].zh = 0;
+    confirmpassword[i] = 0;
+    order = i;
+
+    printf("销户完成！\n");
+	printf("Account cancellation completed！\n");
+
+    ch = getchar();
+}
+
+//改密
+void Change_Pass(Account user[],int i)
+{
+    system("cls");
+    int check;
+    char ch;
+
+    printf("\n请输入现在的密码：\n");
+	printf("Enter your current password:\n");
+    scanf("%d",&check);
+
+    if(check == confirmpassword[i])
+    {
+        printf("请输入新密码：\n");
+		printf("Please enter a new password：");
+        scanf("%d",&confirmpassword[i]);
+        printf("请再次输入新密码：\n");
+		printf("Password changed successfully：");
+        scanf("%d",&check);
+
+        if(check == confirmpassword[i])
+        {
+            user[i].password = check;
+            printf("\n更改密码成功！\n");
+			printf("Password changed successfully！\n");
+            ch = getchar();
+            ch = getchar();
+        }
+        else
+        {
+            printf("\n新密码错误，无法更改!\n");
+			printf("The new password is incorrect and cannot be changed!\n");
+            ch = getchar();
+            ch = getchar();
+        }
+    }
+    else
+    {
+        printf("\n密码错误，无法更改!\n");
+		printf("Password error, unable to change!\n");
+        ch = getchar();
+        ch = getchar();
+    }
+}
+void BaoCunToFile(Account user[], int n, char sFileName[])
+{
+    ////////开始保存文件了哈......
+    //1. 定义文件指针变量
+    FILE *fp;
+
+    //2. 打开文件
+    fp = fopen("D:/atm.txt", "w");
+    if (fp == NULL)
+    {
+        printf("打开文件失败！\n");
+        return;
+    }
+
+    //3. 保存到文件
+    for (int i = 0; i < n; i++)
+    {
+        fwrite(&user[i], sizeof(Account), 1, fp); //二进制信息       
+    }
+
+    //4. 关闭文件
+    fclose(fp);
+}
+
+void DuQuFromFile(Account user[], int n, char sFileName[])
+{
+    ////////开始读取文件了哈......
+    //1. 定义文件指针变量
+    FILE *fp;
+
+    //2. 打开文件
+    fp = fopen("D:/atm.txt", "r");
+    if (fp == NULL)
+    {
+        printf("打开文件失败！\n");
+        return;
+    }
+
+    //3. 读取文件
+    for (int i = 0; i < n; i++)
+    {
+        fread(&user[i], sizeof(Account), 1, fp); //二进制信息       
+    }
+
+    //4. 关闭文件
+    fclose(fp);
+}
